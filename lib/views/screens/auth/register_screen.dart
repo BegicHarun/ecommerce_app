@@ -1,9 +1,15 @@
 import 'package:ecommerce_app/const.dart';
+import 'package:ecommerce_app/controllers/auth_controller.dart';
 import 'package:ecommerce_app/views/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  // const RegisterScreen({Key? key}) : super(key: key);
+
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordContoller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +39,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               SizedBox(height: 20),
               TextField(
+                controller: _fullNameController,
                 decoration: InputDecoration(
                   filled: true,
                   hintText: 'Enter your fullname',
@@ -46,6 +53,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               SizedBox(height: 15),
               TextField(
+                controller: _usernameController,
                 decoration: InputDecoration(
                   filled: true,
                   hintText: 'Enter your username',
@@ -59,6 +67,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               SizedBox(height: 15),
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   filled: true,
                   hintText: 'Enter your email',
@@ -72,6 +81,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               SizedBox(height: 15),
               TextField(
+                controller: _passwordContoller,
                 decoration: InputDecoration(
                   filled: true,
                   hintText: 'Enter your password',
@@ -92,7 +102,13 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 child: Center(
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () async {
+                      await AuthController().signUpUser(
+                          _fullNameController.text,
+                          _usernameController.text,
+                          _emailController.text,
+                          _passwordContoller.text);
+                    },
                     child: Text(
                       'Register',
                       style: TextStyle(
