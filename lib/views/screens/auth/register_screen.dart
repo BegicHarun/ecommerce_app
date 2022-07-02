@@ -1,15 +1,58 @@
+import 'dart:typed_data';
+
 import 'package:ecommerce_app/const.dart';
 import 'package:ecommerce_app/controllers/auth_controller.dart';
 import 'package:ecommerce_app/views/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   // const RegisterScreen({Key? key}) : super(key: key);
-
   final TextEditingController _fullNameController = TextEditingController();
+
   final TextEditingController _usernameController = TextEditingController();
+
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordContoller = TextEditingController();
+
+  Uint8List? _image;
+  bool _isLoading = false;
+
+  selectImage() async {
+    Uint8List img = await AuthController().pickImage(ImageSource.gallery);
+    setState(() {
+      _image = img;
+    });
+  }
+
+  signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthController().signUpUser(
+        _fullNameController.text,
+        _usernameController.text,
+        _emailController.text,
+        _passwordContoller.text,
+        _image);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (res != 'success') {
+      return showSnackBar(res, context);
+    } else {
+      return showSnackBar(
+          'Congratulatins, account has been created for you', context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +66,26 @@ class RegisterScreen extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 64,
-                    backgroundColor: Colors.orangeAccent,
-                    backgroundImage: NetworkImage('profilePic'),
-                  ),
+                  _image != null
+                      ? CircleAvatar(
+                          radius: 64,
+                          backgroundColor: Colors.orangeAccent,
+                          backgroundImage: MemoryImage(_image!))
+                      : CircleAvatar(
+                          radius: 64,
+                          backgroundColor: Colors.orangeAccent,
+                          backgroundImage: NetworkImage(
+                            'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-default-avatar-profile-icon-vector-social-media-user-image-vector-illustration-227787227.jpg',
+                          ),
+                        ),
                   Positioned(
                     bottom: 10,
                     right: 5,
-                    child: Icon(
-                      Icons.add_a_photo,
+                    child: InkWell(
+                      onTap: selectImage,
+                      child: Icon(
+                        Icons.add_a_photo,
+                      ),
                     ),
                   )
                 ],
@@ -102,21 +155,28 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 child: Center(
                   child: InkWell(
-                    onTap: () async {
-                      await AuthController().signUpUser(
-                          _fullNameController.text,
-                          _usernameController.text,
-                          _emailController.text,
-                          _passwordContoller.text);
+                    onTap: () {
+                      signUpUser();
+                      _fullNameController.clear();
+                      _usernameController.clear();
+                      _emailController.clear();
+                      _passwordContoller.clear();
+                      // _image?.clear();
                     },
-                    child: Text(
-                      'Register',
-                      style: TextStyle(
-                        color: textButton,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'Register',
+                            style: TextStyle(
+                              color: textButton,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ),
